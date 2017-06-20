@@ -11,7 +11,7 @@ env:
   - NODE_ENV=production
 install:
 - npm --production=false install
-- cd ./node_module/scratch-audio; npm --production=false install; cd -
+- cd ./node_modules/scratch-audio; npm --production=false install; cd -
 - npm --production=false update
 before_deploy:
 - git config --global user.email $(git log --pretty=format:"%ae" -n1)
