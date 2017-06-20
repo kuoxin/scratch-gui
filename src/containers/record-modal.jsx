@@ -36,12 +36,24 @@ class RecordModal extends React.Component {
 
         this.audioRecorder = new AudioRecorder();
     }
-    handleRecord () {
-        this.audioRecorder.start(
-            () => this.setState({recording: true}),
+
+    componentWillReceiveProps (nextProps) {
+        if (nextProps.visible === true && this.props.visible === false) {
+            this.handleStartListening();
+        } else if (nextProps.visible === false && this.props.visible === true) {
+            this.audioRecorder.stop();
+        }
+    }
+    handleStartListening () {
+        this.audioRecorder.startListening(
+            () => {},
             d => this.setState({level: d}),
             () => alert('Could not start recording') // eslint-disable-line no-alert
         );
+    }
+    handleRecord () {
+        this.audioRecorder.startRecording();
+        this.setState({recording: true});
     }
     handleStopRecording () {
         this.audioRecorder.stop(buffer => {
@@ -61,6 +73,7 @@ class RecordModal extends React.Component {
     }
     handleBack () {
         this.state.buffer.stop();
+        this.handleStartListening();
         this.setState({playing: false, buffer: null});
     }
     handleSubmit () {

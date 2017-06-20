@@ -19,11 +19,10 @@ AudioRecorder.prototype.reset = function () {
     this.rightBuffers = [];
 };
 
-AudioRecorder.prototype.start = function (onStarted, onUpdate, onError) {
+AudioRecorder.prototype.startListening = function (onStarted, onUpdate, onError) {
     const context = this;
     try {
         navigator.getUserMedia({audio: true}, userMediaStream => {
-            context.recording = true;
             context.attachUserMediaStream(userMediaStream, onUpdate);
             onStarted();
         }, e => {
@@ -32,6 +31,10 @@ AudioRecorder.prototype.start = function (onStarted, onUpdate, onError) {
     } catch (e) {
         onError(e);
     }
+};
+
+AudioRecorder.prototype.startRecording = function () {
+    this.recording = true;
 };
 
 AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpdate) {
@@ -43,22 +46,29 @@ AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpd
     const context = this;
 
     this.scriptProcessorNode.onaudioprocess = processEvent => {
-        context.leftBuffers.push(new Float32Array(processEvent.inputBuffer.getChannelData(0)));
-        context.rightBuffers.push(new Float32Array(processEvent.inputBuffer.getChannelData(1)));
-        context.recordedSamples += context.bufferLength;
+        const leftBuffer = new Float32Array(processEvent.inputBuffer.getChannelData(0));
+        const rightBuffer = new Float32Array(processEvent.inputBuffer.getChannelData(1));
+
+        if (context.recording) {
+            context.leftBuffers.push(leftBuffer);
+            context.rightBuffers.push(rightBuffer);
+            context.recordedSamples += context.bufferLength;
+        }
 
         // // Calculate RMS, adapted from https://github.com/Tonejs/Tone.js/blob/master/Tone/component/Meter.js#L88
-        // const signal = context.leftBuffers[context.leftBuffers.length - 1];
+        // const signal = leftBuffer;
         // const sum = signal.reduce((acc, v) => acc + Math.pow(v, 2), 0);
         // const rms = Math.sqrt(sum / signal.length);
-        // const smoothed = Math.max(rms, (context._lastValue || 0) * 0.8);
+        // const smoothed = Math.max(rms, (context._lastValue || 0) * 0.5);
         // context._lastValue = smoothed;
         // // Scale it
         // const unity = 0.35;
         // const val = smoothed / unity;
         // // Scale the output curve
         // onUpdate(Math.sqrt(val));
-        const max = Math.max.apply(null, context.leftBuffers[context.leftBuffers.length - 1]);
+
+        // Simple max calculation
+        const max = Math.max.apply(null, leftBuffer);
         const smoothed = Math.max(max, (context._lastValue || 0) * 0.5);
         context._lastValue = smoothed;
 
@@ -72,6 +82,10 @@ AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpd
 };
 
 AudioRecorder.prototype.stop = function (onStopped) {
+    if (this.recordedSamples === 0) {
+        return;
+    }
+
     const buffers = [
         new Float32Array(this.recordedSamples),
         new Float32Array(this.recordedSamples)

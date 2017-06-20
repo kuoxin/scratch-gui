@@ -3,27 +3,61 @@ const React = require('react');
 const ReactModal = require('react-modal');
 const Box = require('../box/box.jsx');
 const Waveform = require('../asset-panel/waveform.jsx');
+const Meter = require('./meter.jsx');
 const styles = require('./record-modal.css');
+const classNames = require('classnames');
+const CloseButton = require('../close-button/close-button.jsx');
 
 const RecordModal = props => (
     <ReactModal
         className={styles.modalContent}
-        contentLabel={'Record a sound'}
+        contentLabel={'Record Audio'}
         isOpen={props.visible}
         overlayClassName={styles.modalOverlay}
         onRequestClose={props.onCancel}
     >
-        <Box className={styles.header}>
-            Record a sound
-        </Box>
-        <Box className={styles.body}>
-            <Box class={styles.waveformContainer}>
-                <Waveform
-                    data={props.buffer ? props.buffer.getData() : []}
-                    height={150}
-                    level={props.level}
-                    width={500}
+        <div className={styles.header}>
+            <div className={classNames(styles.headerItem, styles.headerItemFilter)}>
+                {/* Nothing here, just for spacing */}
+            </div>
+            <div className={classNames(styles.headerItem, styles.headerItemTitle)}>
+                Record Audio
+            </div>
+            <div className={classNames(styles.headerItem, styles.headerItemClose)}>
+                <CloseButton
+                    size={CloseButton.SIZE_LARGE}
+                    onClick={props.onCancel}
                 />
+            </div>
+        </div>
+        <Box className={styles.body}>
+            <Box className={styles.visualizationContainer}>
+
+                <Box className={styles.meterContainer}>
+                    <Meter
+                        height={172}
+                        level={props.level}
+                        width={20}
+                    />
+                </Box>
+                <Box className={styles.waveformContainer}>
+                    {props.buffer ? (
+                        <Waveform
+                            data={props.buffer ? props.buffer.getData() : []}
+                            height={150}
+                            level={props.level}
+                            width={440}
+                        />
+                    ) : (
+                        <span className={styles.helpText}>
+                            {props.recording ? (
+                                'Recording...'
+                            ) : (
+                                'Begin recording by clicking the button below'
+                            )}
+                        </span>
+                    )}
+                </Box>
             </Box>
             <Box className={styles.mainButtonRow}>
                 <button
@@ -35,43 +69,99 @@ const RecordModal = props => (
                     )}
                 >
                     <svg
-                        height={50}
-                        width={50}
+                        height={70}
+                        style={{
+                            overflow: 'visible'
+                        }}
+                        width={70}
                     >
-                        {props.buffer ? (
-                            props.playing ? (
-                                <rect
-                                    fill="#4C97FF"
-                                    height={20}
-                                    width={20}
-                                    x={15}
-                                    y={15}
-                                />
+                        <g transform="translate(-35,-35) scale(1.5) translate(23, 23)">
+                            {props.buffer ? (
+                                props.playing ? (
+                                    <g>
+                                        <rect
+                                            fill="#4C97FF"
+                                            height={30}
+                                            rx={3}
+                                            ry={3}
+                                            width={30}
+                                            x={10}
+                                            y={10}
+                                        />
+                                        <rect
+                                            className={styles.pulser}
+                                            fill="#4C97FF"
+                                            height={30}
+                                            rx={3}
+                                            ry={3}
+                                            width={30}
+                                            x={10}
+                                            y={10}
+                                        />
+                                    </g>
+                                ) : (
+                                    <polygon
+                                        fill="#4C97FF"
+                                        points="15 15 35 25 15 35"
+                                        stroke="#4C97FF"
+                                        strokeLinejoin="round"
+                                        strokeWidth="5"
+                                    />
+                                )
                             ) : (
-                                <polygon
-                                    fill="#4C97FF"
-                                    points="10 10 40 25 10 40"
-                                />
-                            )
-                        ) : (
-                            props.recording ? (
-                                <rect
-                                    fill="red"
-                                    height={20}
-                                    width={20}
-                                    x={15}
-                                    y={15}
-                                />
-                            ) : (
-                                <circle
-                                    cx={25}
-                                    cy={25}
-                                    fill="red"
-                                    r={15}
-                                />
-                            )
-                        )}
+                                props.recording ? (
+                                    <g>
+                                        <rect
+                                            fill="rgb(237, 111, 54)"
+                                            height={30}
+                                            rx={3}
+                                            ry={3}
+                                            width={30}
+                                            x={10}
+                                            y={10}
+                                        />
+                                        <rect
+                                            className={styles.pulser}
+                                            fill="rgb(237, 111, 54)"
+                                            height={30}
+                                            rx={3}
+                                            ry={3}
+                                            width={30}
+                                            x={10}
+                                            y={10}
+                                        />
+                                    </g>
+                                ) : (
+                                    <g>
+                                        <circle
+                                            cx={25}
+                                            cy={25}
+                                            fill="rgb(237, 111, 54)"
+                                            r={15}
+                                        />
+                                        <circle
+                                            cx={25}
+                                            cy={25}
+                                            fill="rgb(237, 111, 54)"
+                                            style={{opacity: 0.15, transition: '0.1s'}}
+                                            r={18 + props.level * 10}
+                                        />
+                                    </g>
+                                )
+                            )}
+                        </g>
                     </svg>
+                    <div className={styles.helpText}>
+                        {props.buffer ? (
+                            <span className={styles.playingText}>
+                                {props.playing ? 'Stop' : 'Play'}
+                            </span>
+                        ) : (
+                            <span className={styles.recordingText}>
+                                {props.recording ? 'Stop recording' : 'Record'}
+                            </span>
+                        )}
+                    </div>
                 </button>
             </Box>
             {props.buffer ? (
@@ -80,7 +170,7 @@ const RecordModal = props => (
                         className={styles.cancelButton}
                         onClick={props.onBack}
                     >
-                        Back
+                        Re-record
                     </button>
                     <button
                         className={styles.okButton}
