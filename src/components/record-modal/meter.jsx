@@ -2,7 +2,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 
 const Meter = props => {
-    const level = Math.min(1, Math.max(0, props.level));
+    const level = Math.min(1, Math.max(0, props.level || 0));
     const {
         width,
         height
@@ -10,7 +10,7 @@ const Meter = props => {
 
     const nGreen = 11;
     const nYellow = 5;
-    const nRed = 5;
+    const nRed = 3;
 
     const nBars = nGreen + nYellow + nRed;
 
@@ -38,7 +38,7 @@ const Meter = props => {
         if (index < nGreen + nYellow) return yellowStroke;
         return redStroke;
     };
-    
+
     const bars = Array(nBars).fill(0)
         .map((value, index) => (
             <rect

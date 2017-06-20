@@ -7,7 +7,6 @@ const VMScratchBlocks = require('../lib/blocks');
 const VM = require('scratch-vm');
 const Prompt = require('./prompt.jsx');
 const BlocksComponent = require('../components/blocks/blocks.jsx');
-const RecordModal = require('./record-modal.jsx');
 
 const addFunctionListener = (object, property, callback) => {
     const oldFn = object[property];
@@ -194,7 +193,6 @@ class Blocks extends React.Component {
                     componentRef={this.setBlocks}
                     {...props}
                 />
-                <RecordModal />
                 {this.state.prompt ? (
                     <Prompt
                         label={this.state.prompt.message}

@@ -1,6 +1,5 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const styles = require('./waveform.css');
 
 const Waveform = props => {
     const {
@@ -48,7 +47,6 @@ const Waveform = props => {
                     stroke="rgb(207, 99, 207)"
                     strokeLinejoin={'round'}
                     strokeWidth={2}
-                    style={styles.polygon}
                 />
             </g>
         </svg>

@@ -81,7 +81,9 @@ class SoundTab extends React.Component {
                 onItemClick={this.handleSelectSound}
                 onNewClick={this.props.onSoundRecorder}
             >
-                <RecordModal />
+                {this.props.soundRecorderVisible ? (
+                    <RecordModal />
+                ) : null}
             </AssetPanel>
         );
     }
@@ -90,6 +92,7 @@ class SoundTab extends React.Component {
 SoundTab.propTypes = {
     editingTarget: PropTypes.string,
     onSoundRecorder: PropTypes.func.isRequired,
+    soundRecorderVisible: PropTypes.bool,
     sprites: PropTypes.shape({
         id: PropTypes.shape({
             sounds: PropTypes.arrayOf(PropTypes.shape({
@@ -108,7 +111,8 @@ SoundTab.propTypes = {
 const mapStateToProps = state => ({
     editingTarget: state.targets.editingTarget,
     sprites: state.targets.sprites,
-    stage: state.targets.stage
+    stage: state.targets.stage,
+    soundRecorderVisible: state.modals.soundRecorder
 });
 
 const mapDispatchToProps = dispatch => ({

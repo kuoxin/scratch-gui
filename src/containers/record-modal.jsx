@@ -33,16 +33,13 @@ class RecordModal extends React.Component {
             playing: false,
             level: 0
         };
-
-        this.audioRecorder = new AudioRecorder();
     }
-
-    componentWillReceiveProps (nextProps) {
-        if (nextProps.visible === true && this.props.visible === false) {
-            this.handleStartListening();
-        } else if (nextProps.visible === false && this.props.visible === true) {
-            this.audioRecorder.stop();
-        }
+    componentDidMount () {
+        this.audioRecorder = new AudioRecorder();
+        this.handleStartListening();
+    }
+    componentWillUnmount () {
+        this.audioRecorder.stop();
     }
     handleStartListening () {
         this.audioRecorder.startListening(
@@ -106,7 +103,6 @@ class RecordModal extends React.Component {
                 level={this.state.level}
                 playing={this.state.playing}
                 recording={this.state.recording}
-                visible={this.props.visible}
                 onBack={this.handleBack}
                 onCancel={this.handleCancel}
                 onPlay={this.handlePlay}
@@ -121,7 +117,6 @@ class RecordModal extends React.Component {
 
 RecordModal.propTypes = {
     onClose: PropTypes.func,
-    visible: PropTypes.bool,
     vm: PropTypes.instanceOf(VM)
 };
 
