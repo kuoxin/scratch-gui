@@ -1,10 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 
-const styles = require('./meter.css');
-
-// const slidingWindow = Array(50).fill(0);
-
 const Meter = props => {
     const level = Math.min(1, Math.max(0, props.level));
     const {
@@ -42,9 +38,7 @@ const Meter = props => {
         if (index < nGreen + nYellow) return yellowStroke;
         return redStroke;
     };
-
-    // const nBarsForLevel = Math.floor(level * nBars);
-    // const bars = Array(nBarsForLevel).fill(0)
+    
     const bars = Array(nBars).fill(0)
         .map((value, index) => (
             <rect
@@ -61,26 +55,16 @@ const Meter = props => {
         ));
 
     const maskHeight = Math.floor(nBars * (1 - level)) * (barHeight + barSpacing);
-    const mask = <rect
-        x={-2}
-        y={-2}
-        width={width + 4}
-        height={maskHeight + 2}
-        fill="white"
-        opacity="0.75"
-    />;
-
-    const purpleBar = <rect
-        fill="rgb(207, 99, 207)"
-        // fill="url(#gradient)"
-        x={0}
-        y={height / 2 - Math.max(level, 0.05) * height / 2}
-        width={width}
-        height={Math.max(level, 0.05) * height}
-        rx={4}
-        ry={4}
-        style={{transition: '0.1s'}}
-    />;
+    const mask = (
+        <rect
+            fill="white"
+            height={maskHeight + 2}
+            opacity="0.75"
+            width={width + 4}
+            x={-2}
+            y={-2}
+        />
+    );
 
     return (
         <svg
@@ -90,8 +74,6 @@ const Meter = props => {
         >
             {bars}
             {mask}
-
-            {/* {purpleBar} */}
         </svg>
     );
 };

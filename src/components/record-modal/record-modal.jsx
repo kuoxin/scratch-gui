@@ -143,8 +143,8 @@ const RecordModal = props => (
                                             cx={25}
                                             cy={25}
                                             fill="rgb(237, 111, 54)"
-                                            style={{opacity: 0.15, transition: '0.1s'}}
                                             r={18 + props.level * 10}
+                                            style={{opacity: 0.15, transition: '0.1s'}}
                                         />
                                     </g>
                                 )

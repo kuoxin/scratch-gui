@@ -10,8 +10,7 @@ const Waveform = props => {
         width,
         height,
         data,
-        level,
-        playhead
+        level
     } = props;
 
     const amp = height / 2;
@@ -68,8 +67,10 @@ const Waveform = props => {
                 // </g>
                 <polyline
                     fill="none"
+                    points={slidingWindow.map((v, ind) =>
+                        `${ind * width / slidingWindow.length} ${v * height}`).join(' ')
+                    }
                     stroke="rgb(207, 99, 207)"
-                    points={slidingWindow.map((v, i) => `${i * width / slidingWindow.length} ${v * height}`).join(' ')}
                 />
             ) : (
                 <g transform={`scale(1, -1) translate(0, -${height / 2}) `}>
@@ -81,16 +82,6 @@ const Waveform = props => {
                         strokeWidth={2}
                         style={styles.polygon}
                     />
-                    {playhead ? (
-                        <line
-                            x1={playhead * data.length / 4096}
-                            x2={playhead * data.length / 4096}
-                            y1={-height / 2}
-                            y2={height / 2}
-                            stroke="#4C97FF"
-                        />
-                    ) : null}
-
                 </g>
             )}
         </svg>
