@@ -1,5 +1,7 @@
 const AUDIO_CONTEXT = new AudioContext();
 
+const WavEncoder = require('wav-encoder');
+
 const AudioRecorder = function () {
     this.reset();
 };
@@ -144,7 +146,12 @@ AudioRecorder.prototype.stop = function (onStopped) {
     const audioBuffer = this.audioContext.createBuffer(1, buffers[0].length, AUDIO_CONTEXT.sampleRate);
     audioBuffer.getChannelData(0).set(buffers[0]);
 
-    onStopped(audioBuffer);
+    WavEncoder.encode({
+        sampleRate: AUDIO_CONTEXT.sampleRate,
+        channelData: buffers
+    }).then(wavBuffer =>
+        onStopped(audioBuffer, wavBuffer)
+    );
 
     this.scriptProcessorNode.disconnect();
     this.sourceNode.disconnect();

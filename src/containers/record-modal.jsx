@@ -53,10 +53,11 @@ class RecordModal extends React.Component {
         this.setState({recording: true});
     }
     handleStopRecording () {
-        this.audioRecorder.stop(buffer => {
+        this.audioRecorder.stop((buffer, wavBuffer) => {
             this.setState({
                 recording: false,
-                buffer: new AudioBufferPlayer(buffer)
+                buffer: new AudioBufferPlayer(buffer),
+                wavBuffer: wavBuffer
             });
         });
     }
@@ -76,15 +77,23 @@ class RecordModal extends React.Component {
     handleSubmit () {
         if (this.state.buffer) this.state.buffer.stop();
 
-        const md5 = String(Math.random());
+        const md5 = String(Math.floor(100000 * Math.random()));
         const vmSound = {
             format: '',
-            md5: md5,
+            md5: `${md5}.wav`,
             name: `recording ${this.props.vm.editingTarget.sprite.sounds.length}`
         };
-        this.props.vm.editingTarget.sprite.sounds.push(vmSound);
-        this.props.vm.runtime.audioEngine.storeBuffer(vmSound.md5, this.state.buffer.buffer);
-        this.props.vm.emitTargetsUpdate();
+
+        // Load the encoded .wav into the storage cache
+        const storage = this.props.vm.runtime.storage;
+        storage.builtinHelper.cache(
+            storage.AssetType.Sound,
+            storage.DataFormat.WAV,
+            new Uint8Array(this.state.wavBuffer),
+            md5
+        );
+
+        this.props.vm.addSound(vmSound);
         this.handleCancel();
     }
     handleCancel () {
