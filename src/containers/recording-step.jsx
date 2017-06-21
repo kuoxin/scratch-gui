@@ -8,22 +8,31 @@ class RecordingStep extends React.Component {
         super(props);
         bindAll(this, [
             'handleRecord',
-            'handleStopRecording'
+            'handleStopRecording',
+            'handleLevelUpdate',
+            'handleRecordingError'
         ]);
 
         this.state = {
-            level: 0
+            level: 0,
+            levels: null
         };
     }
     componentDidMount () {
         this.audioRecorder = new AudioRecorder();
-        this.audioRecorder.startListening(
-            level => this.setState({level}),
-            () => alert('Could not start recording') // eslint-disable-line no-alert
-        );
+        this.audioRecorder.startListening(this.handleLevelUpdate, this.handleRecordingError);
     }
     componentWillUnmount () {
         this.audioRecorder.dispose();
+    }
+    handleRecordingError () {
+        alert('Could not start recording'); // eslint-disable-line no-alert
+    }
+    handleLevelUpdate (level) {
+        this.setState({level});
+        if (this.props.recording) {
+            this.setState({levels: (this.state.levels || []).concat([level])});
+        }
     }
     handleRecord () {
         this.audioRecorder.startRecording();
@@ -42,6 +51,7 @@ class RecordingStep extends React.Component {
         return (
             <RecordingStepComponent
                 level={this.state.level}
+                levels={this.state.levels}
                 onRecord={this.handleRecord}
                 onStopRecording={this.handleStopRecording}
                 {...componentProps}

@@ -3,6 +3,7 @@ const React = require('react');
 const Box = require('../box/box.jsx');
 const Meter = require('./meter.jsx');
 const styles = require('./record-modal.css');
+const Waveform = require('./waveform.jsx');
 
 const RecordingStep = props => (
     <Box>
@@ -15,10 +16,18 @@ const RecordingStep = props => (
                 />
             </Box>
             <Box className={styles.waveformContainer}>
-                <span className={styles.helpText}>
-                    {props.recording ? 'Recording...' :
-                        'Begin recording by clicking the button below'}
-                </span>
+                {props.levels ? (
+                    <Waveform
+                        data={props.levels}
+                        height={150}
+                        level={0}
+                        width={440}
+                    />
+                ) : (
+                    <span className={styles.helpText}>
+                        Begin recording by clicking the button below
+                    </span>
+                )}
             </Box>
         </Box>
         <Box className={styles.mainButtonRow}>
@@ -87,6 +96,7 @@ const RecordingStep = props => (
 
 RecordingStep.propTypes = {
     level: PropTypes.number,
+    levels: PropTypes.arrayOf(PropTypes.number),
     onRecord: PropTypes.func.isRequired,
     onStopRecording: PropTypes.func.isRequired,
     recording: PropTypes.bool
