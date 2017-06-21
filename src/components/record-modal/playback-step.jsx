@@ -18,7 +18,7 @@ const PlaybackStep = props => (
             </Box>
             <Box className={styles.waveformContainer}>
                 <Waveform
-                    data={props.buffer ? props.buffer.getChannelData(0) : []}
+                    data={props.channelData ? props.channelData[0] : []}
                     height={150}
                     level={0}
                     width={440}
@@ -96,7 +96,7 @@ const PlaybackStep = props => (
 );
 
 PlaybackStep.propTypes = {
-    buffer: PropTypes.arrayOf(PropTypes.number).isRequired,
+    channelData: PropTypes.arrayOf(PropTypes.number).isRequired,
     onBack: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
     onStopPlaying: PropTypes.func.isRequired,

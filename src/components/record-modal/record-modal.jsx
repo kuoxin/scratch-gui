@@ -32,9 +32,9 @@ const RecordModal = props => (
             </div>
         </div>
         <Box className={styles.body}>
-            {props.buffer ? (
+            {props.channelData ? (
                 <PlaybackStep
-                    buffer={props.buffer}
+                    channelData={props.channelData}
                     playing={props.playing}
                     onBack={props.onBack}
                     onPlay={props.onPlay}
@@ -53,7 +53,7 @@ const RecordModal = props => (
 );
 
 RecordModal.propTypes = {
-    buffer: PropTypes.instanceOf(AudioBuffer),
+    channelData: PropTypes.instanceOf(AudioBuffer),
     onBack: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,

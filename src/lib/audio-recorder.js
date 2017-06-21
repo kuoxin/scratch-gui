@@ -1,7 +1,5 @@
 const AUDIO_CONTEXT = new AudioContext();
 
-const WavEncoder = require('wav-encoder');
-
 const AudioRecorder = function () {
     this.reset();
 };
@@ -82,7 +80,7 @@ AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpd
     this.scriptProcessorNode.connect(this.audioContext.destination);
 };
 
-AudioRecorder.prototype.stop = function (onStopped) {
+AudioRecorder.prototype.stop = function () {
     if (this.recordedSamples === 0) {
         return;
     }
@@ -142,22 +140,17 @@ AudioRecorder.prototype.stop = function (onStopped) {
         }
     }
 
-    const audioBuffer = this.audioContext.createBuffer(1, buffers[0].length, AUDIO_CONTEXT.sampleRate);
-    audioBuffer.getChannelData(0).set(buffers[0]);
-
-    WavEncoder.encode({
-        sampleRate: AUDIO_CONTEXT.sampleRate,
-        channelData: buffers
-    }).then(wavBuffer =>
-        onStopped(audioBuffer, wavBuffer)
-    );
-
     this.scriptProcessorNode.disconnect();
     this.sourceNode.disconnect();
     this.mediaStreamSource.disconnect();
     this.userMediaStream.getAudioTracks()[0].stop();
 
     this.reset();
+
+    return {
+        channelData: buffers,
+        sampleRate: AUDIO_CONTEXT.sampleRate
+    };
 };
 
 module.exports = AudioRecorder;
