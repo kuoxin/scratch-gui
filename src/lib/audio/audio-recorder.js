@@ -1,12 +1,12 @@
-const AUDIO_CONTEXT = new AudioContext();
+const SharedAudioContext = require('./shared-audio-context.js');
 
 const AudioRecorder = function () {
+    this.audioContext = new SharedAudioContext();
     this.reset();
 };
 
 AudioRecorder.prototype.reset = function () {
     this.bufferLength = 4096;
-    this.audioContext = AUDIO_CONTEXT;
 
     this.userMediaStream = null;
     this.mediaStreamSource = null;
@@ -149,7 +149,7 @@ AudioRecorder.prototype.stop = function () {
 
     return {
         channelData: buffers,
-        sampleRate: AUDIO_CONTEXT.sampleRate
+        sampleRate: this.audioContext.sampleRate
     };
 };
 

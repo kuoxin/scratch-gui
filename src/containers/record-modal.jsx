@@ -72,11 +72,6 @@ class RecordModal extends React.Component {
         });
     }
     handleCancel () {
-        this.setState({
-            channelData: null,
-            recording: false,
-            playing: false
-        });
         this.props.onClose();
     }
     render () {

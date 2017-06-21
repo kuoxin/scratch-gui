@@ -1,7 +1,7 @@
 const React = require('react');
 const bindAll = require('lodash.bindall');
 const PlaybackStepComponent = require('../components/record-modal/playback-step.jsx');
-const AudioBufferPlayer = require('../lib/audio-buffer-player.js');
+const AudioBufferPlayer = require('../lib/audio/audio-buffer-player.js');
 
 class PlaybackStep extends React.Component {
     constructor (props) {
