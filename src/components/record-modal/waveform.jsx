@@ -54,7 +54,7 @@ const Waveform = props => {
 };
 
 Waveform.propTypes = {
-    data: PropTypes.arrayOf(PropTypes.number),
+    data: PropTypes.instanceOf(Float32Array),
     height: PropTypes.number,
     width: PropTypes.number
 };

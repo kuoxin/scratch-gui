@@ -25,10 +25,11 @@ class RecordModal extends React.Component {
         ]);
 
         this.state = {
-            sampleRate: null,
             channelData: null,
+            encoding: false,
+            playing: false,
             recording: false,
-            playing: false
+            sampleRate: null
         };
     }
     handleRecord () {
@@ -47,6 +48,8 @@ class RecordModal extends React.Component {
         this.setState({playing: false, channelData: null});
     }
     handleSubmit () {
+        this.setState({encoding: true});
+
         WavEncoder.encode({
             sampleRate: this.state.sampleRate,
             channelData: this.state.channelData
@@ -63,7 +66,7 @@ class RecordModal extends React.Component {
             storage.builtinHelper.cache(
                 storage.AssetType.Sound,
                 storage.DataFormat.WAV,
-                new Uint8Array(wavBuffer),
+                new Uint8Array(wavBuffer), // @todo ask cwf about the need for this?
                 md5
             );
 
@@ -78,6 +81,7 @@ class RecordModal extends React.Component {
         return (
             <RecordModalComponent
                 channelData={this.state.channelData}
+                encoding={this.state.encoding}
                 playing={this.state.playing}
                 recording={this.state.recording}
                 onBack={this.handleBack}

@@ -18,7 +18,7 @@ const PlaybackStep = props => (
             </Box>
             <Box className={styles.waveformContainer}>
                 <Waveform
-                    data={props.channelData ? props.channelData[0] : []}
+                    data={props.channelData[0]}
                     height={150}
                     level={0}
                     width={440}
@@ -87,16 +87,18 @@ const PlaybackStep = props => (
             </button>
             <button
                 className={styles.okButton}
+                disabled={props.encoding}
                 onClick={props.onSubmit}
             >
-                OK
+                {props.encoding ? 'Loading...' : 'OK'}
             </button>
         </Box>
     </Box>
 );
 
 PlaybackStep.propTypes = {
-    channelData: PropTypes.arrayOf(PropTypes.number).isRequired,
+    channelData: PropTypes.arrayOf(PropTypes.instanceOf(Float32Array)).isRequired,
+    encoding: PropTypes.bool.isRequired,
     onBack: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
     onStopPlaying: PropTypes.func.isRequired,

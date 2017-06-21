@@ -17,7 +17,10 @@ AudioBufferPlayer.prototype.play = function (onEnded) {
 };
 
 AudioBufferPlayer.prototype.stop = function () {
-    if (this.source) this.source.stop();
+    if (this.source) {
+        this.source.onended = null; // Do not call onEnded callback if manually stopped
+        this.source.stop();
+    }
 };
 
 module.exports = AudioBufferPlayer;
