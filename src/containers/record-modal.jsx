@@ -27,6 +27,7 @@ class RecordModal extends React.Component {
         this.state = {
             channelData: null,
             encoding: false,
+            levels: null,
             playing: false,
             recording: false,
             sampleRate: null
@@ -35,8 +36,8 @@ class RecordModal extends React.Component {
     handleRecord () {
         this.setState({recording: true});
     }
-    handleStopRecording (channelData, sampleRate) {
-        this.setState({channelData, sampleRate, recording: false});
+    handleStopRecording (channelData, sampleRate, levels) {
+        this.setState({channelData, sampleRate, levels, recording: false});
     }
     handlePlay () {
         this.setState({playing: true});
@@ -82,6 +83,7 @@ class RecordModal extends React.Component {
             <RecordModalComponent
                 channelData={this.state.channelData}
                 encoding={this.state.encoding}
+                levels={this.state.levels}
                 playing={this.state.playing}
                 recording={this.state.recording}
                 onBack={this.handleBack}

@@ -2,10 +2,6 @@ const SharedAudioContext = require('./shared-audio-context.js');
 
 const AudioRecorder = function () {
     this.audioContext = new SharedAudioContext();
-    this.reset();
-};
-
-AudioRecorder.prototype.reset = function () {
     this.bufferLength = 4096;
 
     this.userMediaStream = null;
@@ -20,10 +16,9 @@ AudioRecorder.prototype.reset = function () {
 };
 
 AudioRecorder.prototype.startListening = function (onUpdate, onError) {
-    const context = this;
     try {
         navigator.getUserMedia({audio: true}, userMediaStream => {
-            context.attachUserMediaStream(userMediaStream, onUpdate);
+            this.attachUserMediaStream(userMediaStream, onUpdate);
         }, e => {
             onError(e);
         });
@@ -36,42 +31,35 @@ AudioRecorder.prototype.startRecording = function () {
     this.recording = true;
 };
 
+AudioRecorder.prototype.calculateRMS = function (samples) {
+    // Calculate RMS, adapted from https://github.com/Tonejs/Tone.js/blob/master/Tone/component/Meter.js#L88
+    const sum = samples.reduce((acc, v) => acc + Math.pow(v, 2), 0);
+    const rms = Math.sqrt(sum / samples.length);
+    // Scale it
+    const unity = 0.35;
+    const val = rms / unity;
+    // Scale the output curve
+    return Math.sqrt(val);
+};
+
 AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpdate) {
     this.userMediaStream = userMediaStream;
     this.mediaStreamSource = this.audioContext.createMediaStreamSource(userMediaStream);
     this.sourceNode = this.audioContext.createGain();
     this.scriptProcessorNode = this.audioContext.createScriptProcessor(this.bufferLength, 2, 2);
 
-    const context = this;
 
     this.scriptProcessorNode.onaudioprocess = processEvent => {
         const leftBuffer = new Float32Array(processEvent.inputBuffer.getChannelData(0));
         const rightBuffer = new Float32Array(processEvent.inputBuffer.getChannelData(1));
 
-        if (context.recording) {
-            context.leftBuffers.push(leftBuffer);
-            context.rightBuffers.push(rightBuffer);
-            context.recordedSamples += context.bufferLength;
+        if (this.recording) {
+            this.leftBuffers.push(leftBuffer);
+            this.rightBuffers.push(rightBuffer);
+            this.recordedSamples += this.bufferLength;
         }
 
-        // // Calculate RMS, adapted from https://github.com/Tonejs/Tone.js/blob/master/Tone/component/Meter.js#L88
-        // const signal = leftBuffer;
-        // const sum = signal.reduce((acc, v) => acc + Math.pow(v, 2), 0);
-        // const rms = Math.sqrt(sum / signal.length);
-        // const smoothed = Math.max(rms, (context._lastValue || 0) * 0.5);
-        // context._lastValue = smoothed;
-        // // Scale it
-        // const unity = 0.35;
-        // const val = smoothed / unity;
-        // // Scale the output curve
-        // onUpdate(Math.sqrt(val));
-
-        // Simple max calculation
-        const max = Math.max.apply(null, leftBuffer);
-        const smoothed = Math.max(max, (context._lastValue || 0) * 0.5);
-        context._lastValue = smoothed;
-
-        onUpdate(smoothed);
+        onUpdate(this.calculateRMS(leftBuffer));
     };
 
     // Wire everything together, ending in the destination
@@ -81,24 +69,14 @@ AudioRecorder.prototype.attachUserMediaStream = function (userMediaStream, onUpd
 };
 
 AudioRecorder.prototype.stop = function () {
-    if (this.recordedSamples === 0) {
-        return;
-    }
-
     let offset = 0;
     let maxRMS = 0;
     const chunkLevels = [];
     for (let i = 0; i < this.leftBuffers.length; i++) {
         const leftBufferChunk = this.leftBuffers[i];
-        // Calculate RMS, adapted from https://github.com/Tonejs/Tone.js/blob/master/Tone/component/Meter.js#L88
-        const signal = leftBufferChunk;
-        const sum = signal.reduce((acc, v) => acc + Math.pow(v, 2), 0);
-        const rms = Math.sqrt(sum / signal.length); // Scale it
-        const unity = 0.35;
-        const val = rms / unity;
-        const scaled = Math.sqrt(val); // Scale the output curve
-        maxRMS = Math.max(maxRMS, scaled);
-        chunkLevels.push(scaled);
+        const rms = this.calculateRMS(leftBufferChunk);
+        maxRMS = Math.max(maxRMS, rms);
+        chunkLevels.push(rms);
     }
 
     const threshold = maxRMS / 8;
@@ -129,28 +107,31 @@ AudioRecorder.prototype.stop = function () {
         new Float32Array(usedSamples * this.bufferLength)
     ];
 
+    const usedChunkLevels = [];
     for (let i = 0; i < this.leftBuffers.length; i++) {
         const leftBufferChunk = this.leftBuffers[i];
         const rightBufferChunk = this.rightBuffers[i];
 
         if (i > firstChunkAboveThreshold - 2 && i < lastChunkAboveThreshold + 1) {
+            usedChunkLevels.push(chunkLevels[i]);
             buffers[0].set(leftBufferChunk, offset);
             buffers[1].set(rightBufferChunk, offset);
             offset += leftBufferChunk.length;
         }
     }
 
+    return {
+        levels: usedChunkLevels,
+        channelData: buffers,
+        sampleRate: this.audioContext.sampleRate
+    };
+};
+
+AudioRecorder.prototype.dispose = function () {
     this.scriptProcessorNode.disconnect();
     this.sourceNode.disconnect();
     this.mediaStreamSource.disconnect();
     this.userMediaStream.getAudioTracks()[0].stop();
-
-    this.reset();
-
-    return {
-        channelData: buffers,
-        sampleRate: this.audioContext.sampleRate
-    };
 };
 
 module.exports = AudioRecorder;

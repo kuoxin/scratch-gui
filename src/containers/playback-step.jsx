@@ -1,4 +1,5 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const bindAll = require('lodash.bindall');
 const PlaybackStepComponent = require('../components/record-modal/playback-step.jsx');
 const AudioBufferPlayer = require('../lib/audio/audio-buffer-player.js');
@@ -41,6 +42,9 @@ class PlaybackStep extends React.Component {
     }
 }
 
-PlaybackStep.propTypes = PlaybackStepComponent.propTypes;
+PlaybackStep.propTypes = {
+    channelData: PropTypes.arrayOf(PropTypes.instanceOf(Float32Array)).isRequired,
+    ...PlaybackStepComponent.propTypes
+};
 
 module.exports = PlaybackStep;

@@ -8,43 +8,32 @@ const Waveform = props => {
         data
     } = props;
 
-    const amp = height / 2;
+    const cappedData = [0, ...data, 0];
 
-    // let step = Math.ceil(data.length / width);
-    // const maxStep = 10 * step;
-    const nSteps = 40;
-    const step = Math.max(Math.floor(data.length / nSteps), 1);
+    const points = [
+        ...cappedData.map((v, i) =>
+            [width * i / cappedData.length, height * v / 2]
+        ),
+        ...cappedData.reverse().map((v, i) =>
+            [width * (cappedData.length - i - 1) / cappedData.length, -height * v / 2]
+        )
+    ];
 
-    let i = 0;
-    let pathData = `M 0 0`;
-
-    const handleFactor = 3;
-
-    while (i < data.length) {
-        const d = data.slice(i, i + step);
-        const min = Math.max(-1, Math.min.apply(null, d));
-
-        const halfX = (i + step / 2) * (width / data.length);
-        const fullX = (i + step) * (width / data.length);
-
-        const topY = -min * amp;
-        const bottomY = min * amp;
-
-        pathData += `C ${halfX} ${handleFactor * topY} ${halfX} ${handleFactor * bottomY} ${fullX} 0`;
-
-        i += step;
-    }
+    const pathComponents = points.map(([x, y], i) => {
+        const [nx, ny] = points[i < points.length - 1 ? i + 1 : 0];
+        return `Q${x} ${y} ${(x + nx) / 2} ${(y + ny) / 2}`;
+    });
 
     return (
         <svg
             height={height}
             width={width}
         >
-            <g transform={`scale(1, -1) translate(0, -${height / 2}) `}>
+            <g transform={`scale(1, -1) translate(0, -${height / 2})`}>
                 <path
-                    d={pathData}
-                    fill="none"
-                    stroke="rgb(207, 99, 207)"
+                    d={`M0 0${pathComponents.join()}Z`}
+                    fill="#CF63CF"
+                    stroke="#A63FA6"
                     strokeLinejoin={'round'}
                     strokeWidth={2}
                 />
@@ -54,7 +43,7 @@ const Waveform = props => {
 };
 
 Waveform.propTypes = {
-    data: PropTypes.instanceOf(Float32Array),
+    data: PropTypes.arrayOf(PropTypes.number),
     height: PropTypes.number,
     width: PropTypes.number
 };

@@ -36,6 +36,7 @@ const RecordModal = props => (
                 <PlaybackStep
                     channelData={props.channelData}
                     encoding={props.encoding}
+                    levels={props.levels}
                     playing={props.playing}
                     onBack={props.onBack}
                     onPlay={props.onPlay}
@@ -56,6 +57,7 @@ const RecordModal = props => (
 RecordModal.propTypes = {
     channelData: PropTypes.arrayOf(PropTypes.instanceOf(Float32Array)),
     encoding: PropTypes.bool.isRequired,
+    levels: PropTypes.arrayOf(PropTypes.number),
     onBack: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,
