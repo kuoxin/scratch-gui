@@ -5,9 +5,6 @@ const VM = require('scratch-vm');
 
 const {connect} = require('react-redux');
 
-const AudioRecorder = require('../lib/audio-recorder.js');
-const AudioBufferPlayer = require('../lib/audio-buffer-player.js');
-
 const RecordModalComponent = require('../components/record-modal/record-modal.jsx');
 
 const {
@@ -30,53 +27,29 @@ class RecordModal extends React.Component {
         this.state = {
             buffer: null,
             recording: false,
-            playing: false,
-            level: 0
+            playing: false
         };
     }
-    componentDidMount () {
-        this.audioRecorder = new AudioRecorder();
-        this.handleStartListening();
-    }
-    componentWillUnmount () {
-        this.audioRecorder.stop();
-    }
-    handleStartListening () {
-        this.audioRecorder.startListening(
-            () => {},
-            d => this.setState({level: d}),
-            () => alert('Could not start recording') // eslint-disable-line no-alert
-        );
-    }
     handleRecord () {
-        this.audioRecorder.startRecording();
         this.setState({recording: true});
     }
-    handleStopRecording () {
-        this.audioRecorder.stop((buffer, wavBuffer) => {
-            this.setState({
-                recording: false,
-                buffer: new AudioBufferPlayer(buffer),
-                wavBuffer: wavBuffer
-            });
+    handleStopRecording (buffer, wavBuffer) {
+        this.setState({
+            recording: false,
+            buffer: buffer,
+            wavBuffer: wavBuffer
         });
     }
     handlePlay () {
-        this.state.buffer.play(this.handleStopPlaying);
         this.setState({playing: true});
     }
     handleStopPlaying () {
-        if (this.state.buffer) this.state.buffer.stop();
         this.setState({playing: false});
     }
     handleBack () {
-        this.state.buffer.stop();
-        this.handleStartListening();
         this.setState({playing: false, buffer: null});
     }
     handleSubmit () {
-        if (this.state.buffer) this.state.buffer.stop();
-
         const md5 = String(Math.floor(100000 * Math.random()));
         const vmSound = {
             format: '',
@@ -100,8 +73,7 @@ class RecordModal extends React.Component {
         this.setState({
             buffer: null,
             recording: false,
-            playing: false,
-            level: 0
+            playing: false
         });
         this.props.onClose();
     }
@@ -109,7 +81,6 @@ class RecordModal extends React.Component {
         return (
             <RecordModalComponent
                 buffer={this.state.buffer}
-                level={this.state.level}
                 playing={this.state.playing}
                 recording={this.state.recording}
                 onBack={this.handleBack}

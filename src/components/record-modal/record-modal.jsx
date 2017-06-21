@@ -6,8 +6,8 @@ const styles = require('./record-modal.css');
 const classNames = require('classnames');
 const CloseButton = require('../close-button/close-button.jsx');
 
-const RecordingStep = require('./recording-step.jsx');
-const PlaybackStep = require('./playback-step.jsx');
+const RecordingStep = require('../../containers/recording-step.jsx');
+const PlaybackStep = require('../../containers/playback-step.jsx');
 
 const RecordModal = props => (
     <ReactModal
@@ -35,7 +35,6 @@ const RecordModal = props => (
             {props.buffer ? (
                 <PlaybackStep
                     buffer={props.buffer}
-                    level={props.level}
                     playing={props.playing}
                     onBack={props.onBack}
                     onPlay={props.onPlay}
@@ -44,7 +43,6 @@ const RecordModal = props => (
                 />
             ) : (
                 <RecordingStep
-                    level={props.level}
                     recording={props.recording}
                     onRecord={props.onRecord}
                     onStopRecording={props.onStopRecording}
@@ -55,8 +53,7 @@ const RecordModal = props => (
 );
 
 RecordModal.propTypes = {
-    buffer: PropTypes.arrayOf(PropTypes.number),
-    level: PropTypes.number,
+    buffer: PropTypes.instanceOf(AudioBuffer),
     onBack: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     onPlay: PropTypes.func.isRequired,

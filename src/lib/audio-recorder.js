@@ -21,12 +21,11 @@ AudioRecorder.prototype.reset = function () {
     this.rightBuffers = [];
 };
 
-AudioRecorder.prototype.startListening = function (onStarted, onUpdate, onError) {
+AudioRecorder.prototype.startListening = function (onUpdate, onError) {
     const context = this;
     try {
         navigator.getUserMedia({audio: true}, userMediaStream => {
             context.attachUserMediaStream(userMediaStream, onUpdate);
-            onStarted();
         }, e => {
             onError(e);
         });
